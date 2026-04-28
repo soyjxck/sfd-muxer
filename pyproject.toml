@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sfd-muxer"
+version = "0.1.0"
+description = "CRI SofDec MPEG Program Stream multiplexer for PS2 cutscenes (.sfd)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{name = "soyjxck"}]
+keywords = ["ps2", "sofdec", "cri", "sfd", "mpeg", "muxer", "magna-carta"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Topic :: Multimedia :: Video",
+    "Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+sfd-muxer = "sfd_muxer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
