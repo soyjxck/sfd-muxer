@@ -76,29 +76,25 @@ def _scr_for_block(block_num: int, mux_rate: int) -> int:
     return (block_num * SECTOR * 90001) // (mux_rate * 50)
 
 
-def _system_header(mux_rate: int, video_bound: int, audio_bound: int) -> bytes:
-    """A standard MPEG-1 PS system_header. 12 bytes total:
-       4 bytes start code + length + rate_bound (3) + audio/video flags (3) +
-       per-stream marker (3 each, 1 stream here)."""
+def _system_header(mux_rate: int, video_bound: int, audio_bound: int,
+                   audio_id_start_offset: int = 0) -> bytes:
+    """MPEG-1 PS system_header. Variable length: per-stream marker takes
+    3 bytes per (video_bound + audio_bound) declared stream."""
     out = bytearray(b"\x00\x00\x01\xbb")
-    body = bytearray(12)
-    body[0:2] = struct.pack(">H", 0x000C)
-    body[2] = ((mux_rate >> 15) & 0x7F) | 0x80
-    body[3] = (mux_rate >> 7) & 0xFF
-    body[4] = ((mux_rate << 1) & 0xFE) | 0x01
-    body[5] = ((audio_bound & 0x3F) << 2) | 0x21
-    body[6] = ((video_bound & 0x1F) << 0) | 0xE0
-    body[7] = 0xFF
-    if video_bound:
-        body[8] = 0xE0
-        body[9] = 0xE0
-        body[10] = 0xC0
-    if audio_bound:
-        body[8] = 0xC0
-        body[9] = 0xC0
-        body[10] = 0x40
-    body[11] = 0x20
-    return bytes(out + body)
+    header_length = 6 + 3 * (video_bound + audio_bound)
+    out += struct.pack(">H", header_length)
+    a = (mux_rate >> 15) | 0x80
+    b = (mux_rate >> 7) & 0xFF
+    c = ((mux_rate << 1) & 0xFE) | 0x01
+    out += bytes([a, b, c])
+    bound_a = (audio_bound << 2) | 0x02
+    bound_b = video_bound | 0x20
+    out += bytes([bound_a, bound_b, 0xFF])
+    for i in range(audio_bound):
+        out += bytes([0xC0 + i + audio_id_start_offset, 0xC0, 0x04])
+    for i in range(video_bound):
+        out += bytes([0xE0 + i, 0xE0, 0x2E])
+    return bytes(out)
 
 
 def _padding_stream(length: int) -> bytes:
