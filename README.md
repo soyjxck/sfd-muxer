@@ -70,4 +70,3 @@ final sector:        program_end (0x000001B9) + 0x7FC bytes of 0xFF
 ## Credit
 
 C reference implementation: [nebulas-star/SFD_Muxer](https://github.com/nebulas-star/SFD_Muxer).
-Originally extracted from [magna-carta-undub](https://github.com/soyjxck/magna-carta-undub).
