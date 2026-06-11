@@ -98,10 +98,20 @@ def _system_header(mux_rate: int, video_bound: int, audio_bound: int,
 
 
 def _padding_stream(length: int) -> bytes:
-    """0xBE padding-stream PES of total emitted bytes = length + 6."""
+    """0xBE padding-stream PES of total emitted bytes = length + 6.
+
+    Body is a single ``0x0F`` byte (CRI's stuffing-marker convention)
+    followed by ``0xFF`` filler. MPEG-PS doesn't mandate any specific
+    fill bytes for padding-stream bodies, but original SFDs muxed with
+    CRI's reference encoder all start the body with ``0x0F`` — matching
+    that gives byte-equivalent round-trip on existing files.
+    """
     if length < 0:
         raise ValueError(f"negative padding: {length}")
-    return b"\x00\x00\x01\xbe" + struct.pack(">H", length) + b"\xff" * length
+    if length == 0:
+        return b"\x00\x00\x01\xbe\x00\x00"
+    body = b"\x0f" + b"\xff" * (length - 1)
+    return b"\x00\x00\x01\xbe" + struct.pack(">H", length) + body
 
 
 def _pts_dts(mark: int, ts: int) -> bytes:
