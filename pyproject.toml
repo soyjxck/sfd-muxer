@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sfd-muxer"
-version = "0.1.0"
+version = "0.1.1"
 description = "CRI SofDec MPEG Program Stream multiplexer for PS2 cutscenes (.sfd)"
 readme = "README.md"
 license = "MIT"
@@ -25,3 +25,6 @@ sfd-muxer = "sfd_muxer.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+sfd_muxer = ["py.typed"]

@@ -70,7 +70,8 @@ def main() -> int:
     i.set_defaults(func=cmd_info)
 
     args = ap.parse_args()
-    return args.func(args)
+    ret: int = args.func(args)
+    return ret
 
 
 if __name__ == "__main__":
